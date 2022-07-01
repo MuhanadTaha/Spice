@@ -1,0 +1,15 @@
+﻿@model int
+
+<div class="btn-group" role="group">
+    <a asp-action="Details" class="btn btn-success text-white" asp-route-id="@Model">
+        @*عشان أمرر براميتر*@
+        <i class="fa-solid fa-list"></i>
+    </a>
+    <a asp-action="Edit" class="btn btn-primary text-white" asp-route-id="@Model">
+        <i class="fa-solid fa-pen-to-square"></i>
+    </a>
+    <a asp-action="Delete" class="btn btn-danger text-white" asp-route-id="@Model">
+
+        <i class="fa-solid fa-trash-can"></i>
+    </a>
+</div>

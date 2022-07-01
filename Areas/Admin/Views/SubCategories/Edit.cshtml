@@ -1,0 +1,95 @@
+﻿@model SubCategoryAndCategoryViewModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2 class="text-info">Edit Sub Category</h2>
+
+<br />
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+<div class="whiteBackground border row">
+    <div class="col-8 border-right">
+        <form asp-action="Edit" method="post">
+            <input type="hidden"  asp-for="SubCategory.Id"/>
+            <input type="hidden" asp-for="SubCategory.CategoryId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+            <div class="from-control row">
+                <div class="col-3">
+                    <label asp-for="SubCategory.CategoryId" class="col-form-label"></label>
+                </div>
+                <div class="col-5">
+                    <select class="form-control" id="ddlCategories" disabled asp-for="SubCategory.CategoryId" asp-items="@(new SelectList(Model.CategoriesList,"Id","Name"))"></select>
+                    <span class=" text-danger" asp-validation-for="SubCategory.Name"></span> 
+                </div>
+            </div>
+
+            <div class="from-control row " style="padding-top:20px;">
+                <div class="col-3">
+                    <label asp-for="SubCategory.Name" class="col-form-label"></label>
+                </div>
+                <div class="col-5">
+                    <input asp-for="SubCategory.Name" class="form-control" />
+                    <span class=" text-danger" asp-validation-for="SubCategory.Name"></span> @*To Required Field*@
+                </div>
+            </div>
+
+            <div class="from-group row" style="padding-top:20px;">
+                <div class="col-5 offset-3">
+                    <partial name="UpdateAndBackListButtonPartialView" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-3 offset-1">
+
+        <p class="text-danger">Existing Sub Categories:</p>
+        <div id="divSubCategoriesList">
+
+        </div>
+    </div>
+</div>
+
+@section scripts{   @*عشان يصير الريكواير على مستوى الصفحة مش ع مستوى السيرفير يعني بمنع الريفريش*@
+<partial name="_ValidationScriptsPartial" />
+
+<script>
+    function updateSubCategoriesList() {
+        var SelectedCategory = document.getElementById("ddlCategories").value;
+        $list = $('#divSubCategoriesList'); //  جيه كويري => عرفت متغير اسمه ليست وخليته بيسشاوي اي دي الديف الفاضية فوق
+        $.ajax({
+            url: '/Admin/SubCategories/GetSubCategories/' + SelectedCategory,
+            type: 'GET', //نوع الميثود اللي رح أتعامل معها
+            dataType: 'text', // الداتا تايب اللي رح ترجع رح تكون على شكل تيكست
+            success: function (data) { //في حال نجاح العملية رح يستلم الداتا من الميثود
+                results = JSON.parse(data);
+                $list.html(''); //بفرغها للديف اللي رح تظهر فيها الداتا
+                $list.append('<ul class="list-group">')
+                for (i in results) { //بضيف كل الداتا اللي جاي
+
+                    $list.append('<li class="list-group-item">' + results[i].text + '</li>')
+                }
+                $list.append('</ul>');
+
+            }
+
+        }
+        );
+
+
+    }
+
+    $(document).ready(function () { // يعني أول ما تجهز الصفحة وتشتغل حينفذ الفانكشين اللي فوق تبع الأجاكس
+
+        updateSubCategoriesList();
+
+    });
+    $("#ddlCategories").on("change", function (){ //هان بحكي انه في حال صار تغيير بالدروب داون ليست برضه يستخدم هذا الفانكشن
+        updateSubCategoriesList();
+    })
+</script>
+}
+

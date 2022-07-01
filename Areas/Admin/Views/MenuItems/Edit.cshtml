@@ -1,0 +1,164 @@
+﻿@model MenuItemViewModel
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-info">Create Menu Item</h2>
+<br />
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    @*nctype="multipart/form-data" باسخدمها لما بدي أرفع صور بأي فورم*@
+
+    <input type="hidden" asp-for="MenuItem.Id" />
+    <input type="hidden" asp-for="MenuItem.Image" />
+    <div class="whiteBackground border row">
+        <div class="col-8">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="from-control row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.Name" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="MenuItem.Name" class="form-control" />
+                    <span class="text-danger" asp-validation-for="MenuItem.Name"></span> @*To Required Field*@
+                </div>
+            </div>
+
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.Description" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <textarea asp-for="MenuItem.Description" class="form-control"></textarea>
+                    <span class="text-danger" asp-validation-for="MenuItem.Description"></span> @*To Required Field*@
+                </div>
+            </div>
+
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.Price" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="MenuItem.Price" class="form-control" />
+                    <span class="text-danger" asp-validation-for="MenuItem.Price"></span> @*To Required Field*@
+                </div>
+            </div>
+
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.Image" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <input type="file" multiple asp-for="MenuItem.Image" class="form-control" />
+                </div>
+            </div>
+
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.CategoryId" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <select id="ddlCategories" asp-for="MenuItem.CategoryId" asp-items="@(new SelectList(Model.CategoriesList,"Id","Name"))" class="form-control"></select>
+                    <span class="text-danger" asp-validation-for="MenuItem.CategoryId"></span> @*To Required Field*@
+                </div>
+            </div>
+
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.SubCategoryId" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <select id="ddlSubCategories" asp-for="MenuItem.SubCategoryId" asp-items="@(new SelectList(String.Empty,"Id","Name"))" class="form-control"></select>
+                    <span class="text-danger" asp-validation-for="MenuItem.SubCategoryId"></span> @*To Required Field*@
+                </div>
+            </div>
+
+            <div class="from-group row mt-3">
+                <div class="col-4">
+                    <label asp-for="MenuItem.Spicyness" class="col-form-label"></label>
+                </div>
+                <div class="col-8">
+                    <select asp-for="MenuItem.Spicyness" asp-items="@Html.GetEnumSelectList<MenuItem.ESpicy>()" class="form-control"></select>
+                    <span class="text-danger" asp-validation-for="MenuItem.Spicyness"></span> @*To Required Field*@
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="from-group row" style="padding-top:20px;">
+                <div class="col-8 offset-4">
+                    <partial name="UpdateAndBackListButtonPartialView" />
+                </div>
+            </div>
+        </div>
+        <div class="col-3 offset-1">
+            <img src="@Model.MenuItem.Image" width="100%" style="border:1 solid #bbb9b9; border-radius:5px;" />
+        </div>
+    </div>
+</form>
+
+@section scripts{   @*عشان يصير الريكواير على مستوى الصفحة مش ع مستوى السيرفير يعني بمنع الريفريش*@
+<partial name="_ValidationScriptsPartial" />
+
+
+
+
+<script>
+    function updateSubCategoriesList() {
+        var SelectedCategory = document.getElementById("ddlCategories").value;
+        $list = $('#ddlSubCategories'); //  جيه كويري => عرفت متغير اسمه ليست وخليته بيسشاوي اي دي الديف الفاضية فوق
+        $.ajax({
+            url: '/Admin/SubCategories/GetSubCategories/' + SelectedCategory,
+            type: 'GET', //نوع الميثود اللي رح أتعامل معها
+            dataType: 'text', // الداتا تايب اللي رح ترجع رح تكون على شكل تيكست
+            success: function (data) { //في حال نجاح العملية رح يستلم الداتا من الميثود
+                results = JSON.parse(data);
+                $list.html(''); //بفرغها للديف اللي رح تظهر فيها الداتا
+                var items = '';
+                for (i in results) { //بضيف كل الداتا اللي جاي
+                    items += '<option value ="' + results[i].value + '">' + results[i].text + '</option>';
+                }
+
+                $list.html(items);
+            }
+
+        }
+        );
+
+
+    }
+
+    $(document).ready(function () { // يعني أول ما تجهز الصفحة وتشتغل حينفذ الفانكشين اللي فوق تبع الأجاكس
+
+        updateSubCategoriesList();
+
+    });
+    $("#ddlCategories").on("change", function () { //هان بحكي انه في حال صار تغيير بالدروب داون ليست برضه يستخدم هذا الفانكشن
+        updateSubCategoriesList();
+    })
+</script>
+
+
+
+
+
+<script>
+    //عشان يكون في ايديتور بالايريا
+    tinymce.init(
+        {
+            selector: 'textarea',
+            plugins: 'lists',
+            menubar: 'file edit format'
+        }
+    );
+</script>
+}
